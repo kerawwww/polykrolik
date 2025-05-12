@@ -166,32 +166,28 @@
     }
 
     function showResult() {
+        // Проверяем, все ли вопросы отвечены
+        let allAnswered = true;
         questions.forEach((q, idx) => {
-            let isAllAnswered = true;
-            questions.forEach((q, idx) => {
-            if (!document.querySelector(`input[name='question${idx + 1}']:checked`)) {
-                isAllAnswered = false;
-        }
-    });
-    if (!isAllAnswered) {
-        alert("Пожалуйста, ответьте на все вопросы!");
-        return; // Прерываем функцию полностью
-    }
-
-    // Если все ответы есть — считаем баллы
-    questions.forEach((q, idx) => {
-        let selectedAnswer = document.querySelector(`input[name='question${idx + 1}']:checked`);
-        let answerIndex = parseInt(selectedAnswer.value);
-        totalPointsRed += q.redPoints[answerIndex];
-        totalPointsGreen += q.greenPoints[answerIndex];
-        totalPointsBlue += q.bluePoints[answerIndex];
-    });
+            let selectedAnswer = document.querySelector(`input[name='question${idx + 1}']:checked`);
+            if (!selectedAnswer) {
+                allAnswered = false;
             }
+        });
+
+        if (!allAnswered) {
+            alert("Пожалуйста, ответьте на все вопросы!");
+            return; // Выходим из функции, если есть незаполненные вопросы
+        }
+    
+        // Если все ответы есть — продолжаем подсчёт
+        questions.forEach((q, idx) => {
+            let selectedAnswer = document.querySelector(`input[name='question${idx + 1}']:checked`);
             let answerIndex = parseInt(selectedAnswer.value);
             totalPointsRed += q.redPoints[answerIndex];
             totalPointsGreen += q.greenPoints[answerIndex];
             totalPointsBlue += q.bluePoints[answerIndex];
-        });
+    });
 
         // Clamp values to the range 0-255
         totalPointsRed = Math.max(0, Math.min(totalPointsRed, 255));
