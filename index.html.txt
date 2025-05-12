@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ваш цвет</title>
+    <!-- Подключение шрифта Gotham Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gotham+Pro&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Обновление стиля для использования Gotham Pro */
+        body {
+            font-family: 'Gotham Pro', sans-serif;
+            text-align: center;
+            background-color: black; /* Сделали фон черным */
+            color: white; /* Все тексты стали белыми */
+        }
+        
+        .container {
+            margin-top: 20px;
+        }
+        
+        button {
+            margin-bottom: 20px; /* Добавили отступ снизу от кнопки */
+            background-color: transparent; /* Убрали серый фон у кнопки */
+            color: white; /* Сделали текст кнопки белым */
+            border: 2px solid white; /* Добавили белую рамку */
+            border-radius: 12px; /* Скруглили углы кнопки */
+            cursor: pointer; /* Курсор становится рукой при наведении */
+            transition: all 0.3s ease-in-out; /* Плавный переход при наведении */
+            padding: 8px 24px; /* Увеличили размеры кнопки */
+        }
+        
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* При наведении слегка затемняем фон */
+        }
+        
+        #result-box {
+            position: relative; /* Позволяет позиционировать дочерние элементы относительно родителя */
+            width: 200px;
+            height: 75px;
+            border: 0px solid black;
+            display: none;
+            margin: auto;
+            border-radius: 45px; /* Скруглили углы */
+        }
+        
+        .color-code {
+            position: absolute; /* Абсолютное позиционирование внутри родительского блока */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Центрируем текст горизонтально и вертикально */
+            font-size: 18px;
+            padding: 4px 8px; /* Немного увеличим отступы вокруг текста */
+            color: white; /* Цвет текста белый */
+            border: 2px solid white; /* Белая обводка */
+            border-radius: 45px; /* Скруглим углы текста */
+            z-index: 1; /* Убедимся, что текст находится поверх фона */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Тест на определение Вашего типа питомцев</h1>
+    <div id="questions"></div>
+    <button onclick="showResult()">Показать результат</button>
+    <div id="result-box"><span class="color-code"></span></div> <!-- Элемент для строки с кодом цвета внутри result-box -->
+</div>
+<script>
+    let totalPointsRed = 80;
+    let totalPointsGreen = 80;
+    let totalPointsBlue = 80;
+
+    const questions = [
+        {
+        question: "Готовы ли вы тратить не менее часа в день на активное взаимодействие с питомцем?",
+        answers: ["Да", "Нет", "Не всегда"],
+        redPoints: [20, 0, 10],
+        greenPoints: [0, 20, 10],
+        bluePoints: [10, 0, 20]
+    },
+    {
+        question: "Есть ли у вас достаточно места для большого вольера/террариума?",
+        answers: ["Да", "Нет", "Относительно"],
+        redPoints: [20, 0, 10],
+        greenPoints: [20, 0, 10],
+        bluePoints: [20, 10, 20]
+    },
+    {
+        question: "Есть ли у вас/ваших домочадцев аллергия на шерсть животных?",
+        answers: ["Да", "Нет", "На специфичные виды"],
+        redPoints: [0, 20, 10],
+        greenPoints: [20, 10, 20],
+        bluePoints: [10, 20, 20]
+    },
+    {
+        question: "Раздражают ли вас громкие звуки (лай, мяуканье)?",
+        answers: ["Да", "Нет", "Иногда"],
+        redPoints: [0, 20, 10],
+        greenPoints: [20, 10, 20],
+        bluePoints: [10, 10, 20]
+    },
+    {
+        question: "Любите ли вы часто брать питомца на руки?",
+        answers: ["Да", "Нет", "Изредка"],
+        redPoints: [20, 0, 10],   // Собаки: частый контакт важен
+        greenPoints: [0, 20, 10], // Рептилии: редкие взаимодействия предпочтительны
+        bluePoints: [20, 0, 10]   // Кошки: общительность приветствуется
+    },
+    {
+        question: "Готовы ли вы регулярно вычесывать или купать питомца?",
+        answers: ["Да", "Нет", "По необходимости"],
+        redPoints: [20, 0, 10],   // Собаки: требуют активного ухода
+        greenPoints: [0, 20, 10], // Рептилии: минимальный уход
+        bluePoints: [20, 0, 10]   // Кошки: вычесывание полезно для их здоровья
+    },
+    {
+        question: "Хотите ли вы, чтобы питомец сопровождал вас на прогулках?",
+        answers: ["Да", "Нет", "Возможно иногда"],
+        redPoints: [20, 0, 10],   // Собаки: прогулки обязательны
+        greenPoints: [0, 20, 10], // Рептилии: не нуждаются в выгуле
+        bluePoints: [0, 20, 10]    // Кошки: самостоятельные, прогулки редки
+    },
+    {
+        question: "Смущает ли вас перспектива уборки шерсти?",
+        answers: ["Да", "Нет", "Частично"],
+        redPoints: [0, 20, 10],   // Собаки: линяют активно
+        greenPoints: [20, 0, 10], // Рептилии: отсутствие шерсти
+        bluePoints: [0, 20, 10]    // Кошки: умеренная линька
+    },
+    {
+        question: "Нравится ли вам обучать животных командам?",
+        answers: ["Да", "Нет", "Не могу утверждать"],
+        redPoints: [20, 0, 10],
+        greenPoints: [20, 20, 10],
+        bluePoints: [10, 20, 20]
+    }
+];
+
+    function renderQuestions() {
+        let questionsDiv = document.getElementById('questions');
+        questions.forEach((q, idx) => {
+            let questionEl = document.createElement('p');
+            questionEl.textContent = `${idx + 1}. ${q.question}`;
+            questionsDiv.appendChild(questionEl);
+            
+            q.answers.forEach((a, i) => {
+                let radioButton = document.createElement('input');
+                radioButton.type = 'radio';
+                radioButton.name = `question${idx + 1}`;
+                radioButton.value = i;
+                radioButton.id = `question${idx + 1}_option${i + 1}`;
+                
+                let label = document.createElement('label');
+                label.htmlFor = `question${idx + 1}_option${i + 1}`;
+                label.textContent = a;
+                
+                questionsDiv.appendChild(radioButton);
+                questionsDiv.appendChild(label);
+                questionsDiv.appendChild(document.createElement('br'));
+            });
+            
+            questionsDiv.appendChild(document.createElement('hr'));
+        });
+    }
+
+    function showResult() {
+        questions.forEach((q, idx) => {
+            let selectedAnswer = document.querySelector(`input[name='question${idx + 1}']:checked`);
+            if (!selectedAnswer) {
+                alert(`Пожалуйста, ответьте на все вопросы!`);
+                return;
+            }
+            let answerIndex = parseInt(selectedAnswer.value);
+            totalPointsRed += q.redPoints[answerIndex];
+            totalPointsGreen += q.greenPoints[answerIndex];
+            totalPointsBlue += q.bluePoints[answerIndex];
+        });
+
+        // Clamp values to the range 0-255
+        totalPointsRed = Math.max(0, Math.min(totalPointsRed, 255));
+        totalPointsGreen = Math.max(0, Math.min(totalPointsGreen, 255));
+        totalPointsBlue = Math.max(0, Math.min(totalPointsBlue, 255));
+
+        // Convert RGB to hexadecimal color code
+        let colorCode = '#' + totalPointsRed.toString(16).padStart(2, '0') +
+                        totalPointsGreen.toString(16).padStart(2, '0') +
+                        totalPointsBlue.toString(16).padStart(2, '0');
+
+        console.log(colorCode); // Логируем цвет в консоль
+        
+        // Показываем результат
+        let resultBox = document.getElementById('result-box');
+        resultBox.style.backgroundColor = colorCode;
+        resultBox.style.display = 'block';
+        
+        // Выводим код цвета внутри прямоугольника
+        let colorCodeSpan = document.querySelector('.color-code');
+        colorCodeSpan.textContent = `${colorCode}`;
+    }
+
+    window.onload = () => {
+        renderQuestions();
+    };
+</script>
+</body>
+</html>
